@@ -129,6 +129,7 @@ function apexchart_json_manager_page() {
                     <li><code>title_align</code>: left, center, right</li>
                     <li><code>show_toolbar</code>: ツールバー表示（true/false）</li>
                     <li><code>show_grid</code>: グリッド表示（true/false）</li>
+                    <li><code>markers</code>: マーカー設定 {"size": 7, "shape": "circle", "strokeColors": "#fff"}</li>
                 </ul>
 
                 <h3>📝 ショートコード</h3>
@@ -405,6 +406,11 @@ function apexchart_json_manager_page() {
                     }
                 };
                 
+                // Add markers support
+                if (labels.markers) {
+                    options.markers = labels.markers;
+                }
+                
                 let chartDiv = document.createElement('div');
                 chartDiv.id = 'apexchart-preview-inner';
                 preview.appendChild(chartDiv);
@@ -537,6 +543,11 @@ add_shortcode('apexchart_manager', function($atts) {
     // グリッド設定
     if (isset($labels['show_grid'])) {
         $options['grid'] = ['show' => $labels['show_grid']];
+    }
+    
+    // マーカー設定
+    if (isset($labels['markers'])) {
+        $options['markers'] = $labels['markers'];
     }
 
     $chart_id = 'apexchart-' . uniqid();
