@@ -108,7 +108,12 @@ function apexchart_json_manager_page() {
             "chart_height": 350,
             "colors": ["#FF6B6B", "#4ECDC4"],
             "show_data_labels": false,
-            "legend_position": "top"
+            "legend_position": "top",
+            "markers": {
+                "size": 7,
+                "shape": "circle",
+                "strokeColors": "#fff"
+            }
         },
         "系列名1": [10, 20, 30],
         "系列名2": [15, 25, 35]
@@ -129,6 +134,7 @@ function apexchart_json_manager_page() {
                     <li><code>title_align</code>: left, center, right</li>
                     <li><code>show_toolbar</code>: ツールバー表示（true/false）</li>
                     <li><code>show_grid</code>: グリッド表示（true/false）</li>
+                    <li><code>markers</code>: マーカー設定 {"size": 7, "shape": "circle", "strokeColors": "#fff"}</li>
                 </ul>
 
                 <h3>📝 ショートコード</h3>
@@ -142,7 +148,7 @@ function apexchart_json_manager_page() {
                 <code>[apexchart graph="グラフ名" type="line" height="350"]</code>
                 
                 <h3>📊 サンプルJSONデータ</h3>
-                <p>以下のサンプルをコピーして試してください（6種類のグラフ例）:</p>
+                <p>以下のサンプルをコピーして試してください（8種類のグラフ例、マーカー設定を含む）:</p>
                 <details style="margin: 10px 0;">
                     <summary style="cursor: pointer; padding: 5px; background: #e3f2fd; border-radius: 3px;">📋 サンプルJSONを表示</summary>
                     <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 11px; max-height: 400px; overflow-y: auto; margin-top: 10px;">
@@ -256,6 +262,32 @@ function apexchart_json_manager_page() {
         },
         "今年": [25, 30, 120, 80, 100, 45, 35, 55],
         "昨年": [20, 25, 100, 70, 85, 40, 30, 50]
+    },
+    "markers_showcase": {
+        "labels": {
+            "title": "マーカー設定デモ",
+            "x_title": "時期",
+            "y_title": "パフォーマンス",
+            "x_shaft": ["開始", "成長期", "拡大期", "安定期", "成熟期"],
+            "chart_type": "line",
+            "chart_height": 400,
+            "colors": ["#FF6B6B", "#4ECDC4", "#45B7D1"],
+            "markers": {
+                "size": 8,
+                "shape": "circle",
+                "strokeColors": "#fff",
+                "strokeWidth": 2,
+                "fillColors": ["#FF6B6B", "#4ECDC4", "#45B7D1"],
+                "hover": {
+                    "size": 12
+                }
+            },
+            "stroke_curve": "smooth",
+            "show_data_labels": false
+        },
+        "売上": [10, 25, 45, 60, 65],
+        "利益": [5, 15, 30, 45, 50],
+        "顧客満足度": [20, 35, 50, 70, 75]
     }
 }</pre>
                 </details>
@@ -405,6 +437,11 @@ function apexchart_json_manager_page() {
                     }
                 };
                 
+                // Add markers support
+                if (labels.markers) {
+                    options.markers = labels.markers;
+                }
+                
                 let chartDiv = document.createElement('div');
                 chartDiv.id = 'apexchart-preview-inner';
                 preview.appendChild(chartDiv);
@@ -537,6 +574,11 @@ add_shortcode('apexchart_manager', function($atts) {
     // グリッド設定
     if (isset($labels['show_grid'])) {
         $options['grid'] = ['show' => $labels['show_grid']];
+    }
+    
+    // マーカー設定
+    if (isset($labels['markers'])) {
+        $options['markers'] = $labels['markers'];
     }
 
     $chart_id = 'apexchart-' . uniqid();
