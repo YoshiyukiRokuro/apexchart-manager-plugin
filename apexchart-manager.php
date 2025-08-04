@@ -64,7 +64,7 @@ function apexchart_json_manager_page() {
                 <h2>JSONデータ編集</h2>
                 <form method="post">
                     <?php wp_nonce_field('save_apexchart_json'); ?>
-                    <textarea name="apexchart_json" style="width:100%;height:400px;font-family:monospace;font-size:13px;border:1px solid #ddd;padding:10px;" placeholder="JSONデータを入力してください..."><?php echo esc_textarea($json); ?></textarea>
+                    <textarea id="apexchart_json" name="apexchart_json" style="width:100%;height:400px;font-family:monospace;font-size:13px;border:1px solid #ddd;padding:10px;" placeholder="JSONデータを入力してください..."><?php echo esc_textarea($json); ?></textarea>
                     <p>
                         <input type="submit" value="保存" class="button button-primary">
                         <span style="margin-left: 10px; color: #666;">
@@ -72,6 +72,9 @@ function apexchart_json_manager_page() {
                         </span>
                     </p>
                 </form>
+                
+                <h3>リアルタイムプレビュー</h3>
+                <div id="apexchart-preview" style="border: 1px solid #ddd; padding: 15px; background: #f9f9f9; min-height: 100px; border-radius: 4px;"></div>
             </div>
             
             <div style="flex: 1;">
@@ -111,6 +114,63 @@ function apexchart_json_manager_page() {
         </ul>
             </div>
         </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script>
+        function renderChartFromJson() {
+            let jsonStr = document.getElementById('apexchart_json').value;
+            let preview = document.getElementById('apexchart-preview');
+            preview.innerHTML = '';
+            
+            if (!jsonStr.trim()) {
+                preview.innerHTML = '<span style="color: #666; font-style: italic;">JSONデータを入力するとプレビューが表示されます</span>';
+                return;
+            }
+            
+            try {
+                let data = JSON.parse(jsonStr);
+                // 例: graph1をプレビュー
+                if (data.graph1) {
+                    let g = data.graph1;
+                    let series = [];
+                    for (let key in g) {
+                        if (key === 'labels') continue;
+                        if (Array.isArray(g[key])) {
+                            series.push({ name: key, data: g[key] });
+                        }
+                    }
+                    let labels = g.labels || {};
+                    let options = {
+                        chart: { type: 'line', height: 350 },
+                        series: series,
+                        xaxis: { 
+                            categories: labels.x_shaft || [], 
+                            title: { text: labels.x_title || '' } 
+                        },
+                        yaxis: { title: { text: labels.y_title || '' } },
+                        title: { text: labels.title || 'graph1プレビュー' }
+                    };
+                    let chartDiv = document.createElement('div');
+                    chartDiv.id = 'apexchart-preview-inner';
+                    preview.appendChild(chartDiv);
+                    let chart = new ApexCharts(chartDiv, options);
+                    chart.render();
+                } else {
+                    preview.innerHTML = '<span style="color: #666; font-style: italic;">graph1が見つかりません。プレビューにはgraph1のデータが必要です。</span>';
+                }
+            } catch (e) {
+                preview.innerHTML = '<span style="color: red;"><strong>JSONが不正です:</strong> ' + e.message + '</span>';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            let textarea = document.getElementById('apexchart_json');
+            if (textarea) {
+                textarea.addEventListener('input', renderChartFromJson);
+                renderChartFromJson(); // 初回読み込み時にも実行
+            }
+        });
+        </script>
     </div>
     <?php
 }
